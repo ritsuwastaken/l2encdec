@@ -1,4 +1,4 @@
-import { transform, type WorkerReply, type WorkerRequest } from "./rsa.ts";
+import { transform, type WorkerReply, type WorkerRequest } from "./rsa-transform.ts";
 
 interface Port {
   addEventListener(type: "message", listener: (event: { data: WorkerRequest }) => void): void;
