@@ -2,6 +2,10 @@
 
 ## Usage
 
+```bash
+$ npm install l2encdec
+```
+
 ```typescript
 import { initParams, encode, decode } from "l2encdec";
 
