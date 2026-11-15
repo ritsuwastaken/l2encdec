@@ -54,17 +54,20 @@ test("encode does not mutate a Buffer input", async () => {
   assert.deepEqual(new Uint8Array(input), sample);
 });
 
-test("unpack rejects a bad checksum or understated size", () => {
-  const packed = pack(sample)!;
-  assert.deepEqual(unpack(packed), sample);
+test("unpack rejects a bad checksum or wrong size", async () => {
+  const packed = (await pack(sample))!;
+  assert.deepEqual(await unpack(packed), sample);
 
   const badAdler = packed.slice();
   badAdler[badAdler.length - 1] ^= 1;
-  assert.equal(unpack(badAdler), null);
+  assert.equal(await unpack(badAdler), null);
 
-  const understated = packed.slice();
-  new DataView(understated.buffer).setUint32(0, sample.length - 1, true);
-  assert.equal(unpack(understated), null);
+  for (const size of [sample.length - 1, sample.length + 1]) {
+    const wrong = packed.slice();
+    new DataView(wrong.buffer).setUint32(0, size, true);
+    assert.equal(await unpack(wrong), null);
+  }
+  assert.equal(await unpack(new Uint8Array([4, 0, 0, 0, 1, 2, 3, 4])), null);
 });
 
 test("odd-length custom tail round-trips", async () => {

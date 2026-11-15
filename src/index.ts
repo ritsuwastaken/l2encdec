@@ -119,7 +119,7 @@ export async function encode(input: ByteInput, params: Params, options: Options 
       break;
     }
     case Type.RSA: {
-      const compressed = pack(data);
+      const compressed = await pack(data);
       if (!compressed)
         throw new L2EncDecError("COMPRESSION_FAILED");
       const result = await rsaEncrypt(compressed, p.rsa_modulus, p.rsa_public_exponent, options);
@@ -170,7 +170,7 @@ export async function decode(input: ByteInput, params: Params, options: Options 
       const compressed = await rsaDecrypt(data, p.rsa_modulus, p.rsa_private_exponent, options);
       if (!compressed)
         throw new L2EncDecError("DECRYPTION_FAILED");
-      const result = unpack(compressed);
+      const result = await unpack(compressed);
       if (!result)
         throw new L2EncDecError("DECOMPRESSION_FAILED");
       return result;
