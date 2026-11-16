@@ -22,6 +22,7 @@ const decoded = await decode(encoded, params);
 - `encode(input, params, { onProgress?, signal? }): Promise<Uint8Array>`
 - `decode(input, params, { onProgress?, signal? }): Promise<Uint8Array>`
 - `verifyChecksum(input): void`
+- `detectProtocol(input): number | null`
 
 ## CLI
 

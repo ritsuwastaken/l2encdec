@@ -180,6 +180,26 @@ export async function decode(input: ByteInput, params: Params, options: Options 
   }
 }
 
+const atoi = (text: string) => {
+  const match = /^\s*([-+]?\d*)/.exec(text)![1]!;
+  const value = parseInt(match, 10);
+  return Number.isNaN(value) ? 0 : value;
+};
+
+export function detectProtocol(input: ByteInput): number | null {
+  const bytes = toBytes(input);
+  if (bytes.length < HEADER_SIZE)
+    return null;
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  for (let i = 0; i < HEADER_PREFIX.length; i++)
+    if (view.getUint16(i * 2, true) !== HEADER_PREFIX.charCodeAt(i))
+      return null;
+  let digits = "";
+  for (let i = HEADER_PREFIX.length; i < HEADER_SIZE / 2; i++)
+    digits += String.fromCharCode(view.getUint16(i * 2, true));
+  return atoi(digits);
+}
+
 export function verifyChecksum(input: ByteInput): void {
   const bytes = toBytes(input);
   const ok = bytes.length >= TAIL_SIZE

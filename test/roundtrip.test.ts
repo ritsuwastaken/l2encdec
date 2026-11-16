@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { test } from "node:test";
 import { blowfish } from "../src/blowfish.ts";
-import { decode, encode, initParams, L2EncDecError, SUPPORTED_PROTOCOLS, verifyChecksum } from "../src/index.ts";
+import { decode, detectProtocol, encode, initParams, L2EncDecError, SUPPORTED_PROTOCOLS, verifyChecksum } from "../src/index.ts";
 import { pack, unpack } from "../src/zlib.ts";
 
 const sample = Uint8Array.from({ length: 1000 }, (_, i) => (i * 31 + 7) & 0xff);
@@ -73,4 +73,18 @@ test("unpack rejects a bad checksum or wrong size", async () => {
 test("odd-length custom tail round-trips", async () => {
   const params = { ...initParams(111), tail: "abc" };
   assert.deepEqual(await decode(await encode(sample, params), params), sample);
+});
+
+const header = (text: string, rest = 32) => Uint8Array.from([...[...text].flatMap((char) => [char.charCodeAt(0) & 0xff, char.charCodeAt(0) >> 8]), ...new Array(rest).fill(0)]);
+
+test("detectProtocol reads the header like the client", async () => {
+  for (const protocol of SUPPORTED_PROTOCOLS)
+    assert.equal(detectProtocol(await encode(sample, initParams(protocol, { filename: "Test.int" }))), protocol);
+  assert.equal(detectProtocol(header("Lineage2Ver111")), 111);
+  assert.equal(detectProtocol(header("Lineage2Ver1a1")), 1);
+  assert.equal(detectProtocol(header("Lineage2Verabc")), 0);
+  assert.equal(detectProtocol(header("lineage2Ver111")), null);
+  assert.equal(detectProtocol(header("Lineage2Ve\u0172111")), null);
+  assert.equal(detectProtocol(sample), null);
+  assert.equal(detectProtocol(header("Lineage2Ver111", 0).subarray(0, 27)), null);
 });
