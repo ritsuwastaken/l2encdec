@@ -1,6 +1,6 @@
 {
     "name": "l2encdec",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "description": "encrypt/decrypt L2 files",
     "type": "module",
     "bin": {
