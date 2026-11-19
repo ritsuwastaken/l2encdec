@@ -27,9 +27,10 @@ const decoded = await decode(encoded, params);
 ## CLI
 
 ```bash
+npx l2encdec encoded_input.dat decoded_output.bin
 npx l2encdec -c decode -p 413 input.dat output.bin
 npx l2encdec -c encode -p 413 output.bin input.dat
 ```
 
 Options: `-c` / `--command`, `-p` / `--protocol`, `-f` / `--filename` for protocol 121,
-and `-l` / `--legacy` for original RSA decryption keys.
+and `-l` / `--legacy` for original RSA decryption keys. Use `-t` / `--tail` to omit the tail. Omitting `--protocol` reads it from the header for `decode` and defaults to `413` for `encode`.
